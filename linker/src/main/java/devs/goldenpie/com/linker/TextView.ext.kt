@@ -13,31 +13,32 @@ import android.widget.TextView
 private fun String.findLinkPositions(): List<Pair<Int, Int>> {
     val matcher = Patterns.WEB_URL.matcher(this)
     val list = mutableListOf<Pair<Int, Int>>()
-    while (matcher.find()) {
+
+    while (Patterns.WEB_URL.matcher(this).find()) {
         list.add(matcher.start(1) to matcher.end())
     }
+
     return list
 }
 
 private fun String.spanLink(color: Int, onClick: (url: String) -> Unit): SpannableString {
     val ss = SpannableString(this)
 
-    val list = findLinkPositions()
-    if (list.isEmpty())
-        return ss
+    with(findLinkPositions()) {
+        if (isNotEmpty())
+            forEach { pair ->
+                val clickableSpan = object : ClickableSpan() {
+                    override fun onClick(textView: View) {
+                        onClick(substring(pair.first, pair.second))
+                    }
+                }
 
-    list.forEach { pair ->
-        val clickableSpan = object : ClickableSpan() {
-            override fun onClick(textView: View) {
-                onClick(substring(pair.first, pair.second))
+                ss.apply {
+                    setSpan(clickableSpan, pair.first, pair.second, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    setSpan(ForegroundColorSpan(color), pair.first, pair.second, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    setSpan(UnderlineSpan(), pair.first, pair.second, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
             }
-        }
-
-        ss.apply {
-            setSpan(clickableSpan, pair.first, pair.second, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            setSpan(ForegroundColorSpan(color), pair.first, pair.second, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            setSpan(UnderlineSpan(), pair.first, pair.second, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
     }
 
     return ss
@@ -45,8 +46,12 @@ private fun String.spanLink(color: Int, onClick: (url: String) -> Unit): Spannab
 
 fun TextView.spanAllLinks(color: Int, onLinkClick: (url: String) -> Unit): TextView {
     return apply {
-        text = text.toString().spanLink(color, onLinkClick)
-        movementMethod = LinkMovementMethod.getInstance()
-        isClickable = true
+        with(text.toString().spanLink(color, onLinkClick)) {
+            if (getSpans(0, length, UnderlineSpan::class.java).isNotEmpty()) {
+                text = this
+                movementMethod = LinkMovementMethod.getInstance()
+                isClickable = true
+            }
+        }
     }
 }
