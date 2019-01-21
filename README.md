@@ -1,4 +1,5 @@
-[![](https://jitpack.io/v/antoxa2584x/TextView-Linker.svg)](https://jitpack.io/#antoxa2584x/TextView-Linker)
+[![](https://jitpack.io/v/antoxa2584x/TextView-Linker.svg)](https://jitpack.io/#antoxa2584x/TextView-Linker) [![Android Arsenal]( https://img.shields.io/badge/Android%20Arsenal-TextView--Linker-green.svg?style=flat )]( https://android-arsenal.com/details/1/7467 )
+
 
 # TextView-Linker
 
