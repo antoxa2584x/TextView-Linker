@@ -1,5 +1,6 @@
 package devs.goldenpie.com.linker
 
+import android.graphics.Typeface
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.method.LinkMovementMethod
@@ -21,7 +22,7 @@ private fun String.findLinkPositions(): List<Pair<Int, Int>> {
     return list
 }
 
-private fun String.spanLink(color: Int, onClick: (url: String) -> Unit): SpannableString {
+private fun String.spanLink(color: Int, boldLink: Boolean = false, onClick: (url: String) -> Unit): SpannableString {
     val ss = SpannableString(this)
 
     with(findLinkPositions()) {
@@ -37,6 +38,10 @@ private fun String.spanLink(color: Int, onClick: (url: String) -> Unit): Spannab
                     setSpan(clickableSpan, pair.first, pair.second, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                     setSpan(ForegroundColorSpan(color), pair.first, pair.second, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                     setSpan(UnderlineSpan(), pair.first, pair.second, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+                    if (boldLink) {
+                        setSpan(Typeface.BOLD, pair.first, pair.second, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    }
                 }
             }
     }
@@ -44,9 +49,9 @@ private fun String.spanLink(color: Int, onClick: (url: String) -> Unit): Spannab
     return ss
 }
 
-fun TextView.spanAllLinks(color: Int, onLinkClick: (url: String) -> Unit): TextView {
+fun TextView.spanAllLinks(color: Int, boldLink: Boolean = false, onLinkClick: (url: String) -> Unit): TextView {
     return apply {
-        with(text.toString().spanLink(color, onLinkClick)) {
+        with(text.toString().spanLink(color, boldLink, onLinkClick)) {
             if (getSpans(0, length, UnderlineSpan::class.java).isNotEmpty()) {
                 text = this
                 movementMethod = LinkMovementMethod.getInstance()
